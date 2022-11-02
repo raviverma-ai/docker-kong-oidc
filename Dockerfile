@@ -9,7 +9,8 @@ ENV PACKAGES="openssl-devel kernel-headers gcc git openssh" \
     KONG_PLUGIN_OIDC_VER="1.3.0-3" \
     KONG_PLUGIN_COOKIES_TO_HEADERS_VER="1.1-1" \
     LUA_RESTY_OIDC_VER="1.7.5-1" \
-    NGX_DISTRIBUTED_SHM_VER="1.0.7"
+    NGX_DISTRIBUTED_SHM_VER="1.0.7" \
+    KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER="1.1.0-1"
 
 RUN set -ex \
     && apk --no-cache add libssl1.1 openssl curl unzip git \
@@ -31,6 +32,9 @@ RUN set -ex \
         sed -E -e 's/(tag =)[^,]+/\1 "'v${KONG_PLUGIN_OIDC_VER}'"/' -e "s/(lua-resty-openidc ~>)[^\"]+/\1 ${LUA_RESTY_OIDC_VER}/" | \
         tee kong-oidc-${KONG_PLUGIN_OIDC_VER}.rockspec \
     && luarocks build kong-oidc-${KONG_PLUGIN_OIDC_VER}.rockspec \
+    # Build kong-plugin-jwt-keycloak
+    && curl -sL https://raw.githubusercontent.com/raviverma-ai/kong-plugin-jwt-keycloak/master/kong-plugin-jwt-keycloak-${KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER}.rockspec > kong-plugin-jwt-keycloak-${KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER}.rockspec \
+    && luarocks build kong-plugin-jwt-keycloak-${KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER}.rockspec \
     # Build kong-plugin-cookies-to-headers
     && curl -sL https://raw.githubusercontent.com/revomatico/kong-plugin-cookies-to-headers/master/kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec > kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec \
     && luarocks build kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec \
