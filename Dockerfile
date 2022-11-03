@@ -7,7 +7,7 @@ LABEL authors="Cristian Chiru <cristian.chiru@revomatico.com>"
 ENV PACKAGES="openssl-devel kernel-headers gcc git openssh" \
     LUA_BASE_DIR="/usr/local/share/lua/5.1" \
     KONG_PLUGIN_OIDC_VER="1.3.0-3" \
-    KONG_PLUGIN_COOKIES_TO_HEADERS_VER="1.1-1" \
+    KONG_PLUGIN_COOKIES_TO_HEADERS_VER="1.1-4" \
     LUA_RESTY_OIDC_VER="1.7.5-1" \
     NGX_DISTRIBUTED_SHM_VER="1.0.7" \
     KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER="1.1.0-1"
@@ -36,7 +36,7 @@ RUN set -ex \
     && curl -sL https://raw.githubusercontent.com/raviverma-ai/kong-plugin-jwt-keycloak/master/kong-plugin-jwt-keycloak-${KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER}.rockspec > kong-plugin-jwt-keycloak-${KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER}.rockspec \
     && luarocks build kong-plugin-jwt-keycloak-${KONG_PLUGIN_KEYCLOAK_JWT_PLUGIN_VER}.rockspec \
     # Build kong-plugin-cookies-to-headers
-    && curl -sL https://raw.githubusercontent.com/revomatico/kong-plugin-cookies-to-headers/master/kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec > kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec \
+    && curl -sL https://raw.githubusercontent.com/pravin-raha/kong-plugin-cookies-to-headers/master/kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec > kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec \
     && luarocks build kong-plugin-cookies-to-headers-${KONG_PLUGIN_COOKIES_TO_HEADERS_VER}.rockspec \
     # Patch nginx_kong.lua for kong-oidc session_secret
     && TPL=${LUA_BASE_DIR}/kong/templates/nginx_kong.lua \
@@ -94,7 +94,7 @@ set \$session_shm_lock_max_step \${{X_SESSION_SHM_LOCK_MAX_STEP}};\n\
     # Patch kong_defaults.lua to add custom variables that are replaced dynamically in the template above when kong is started
     && TPL=${LUA_BASE_DIR}/kong/templates/kong_defaults.lua \
     && sed -i "/\]\]/i\ \n\
-x_session_storage = cookie\n\
+x_session_storage = shm\n\
 x_session_name = oidc_session\n\
 x_session_compressor = 'none'\n\
 x_session_secret = ''\n\
